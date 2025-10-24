@@ -16,7 +16,7 @@ func NewShortenerHandler(service *shortener.Service) *ShortenerHandler {
 func (h *ShortenerHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 	// обработка тела
 	// сервис
-	// респотсе
+	// респотсеs
 }
 
 func (h *ShortenerHandler) Redirect(w http.ResponseWriter, r *http.Request) {
