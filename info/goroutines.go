@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -10,31 +9,62 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// Пример работы с range
+type goroutineInfo struct {
+	start time.Time
+	end   time.Time
+}
+
 func main() {
-	log.Printf("Простая горутина")
-	simpleGoroutine()
+	runAllExamples()
+}
 
-	log.Printf("Горутина с пакетом sync.WaitGroup")
-	withWaitGroup()
+func runAllExamples() {
+	var wg sync.WaitGroup
 
-	log.Printf("Канал как параметр")
-	channelParam()
+	// map для логирования старта и конца goroutines
+	infoMap := make(map[string]goroutineInfo)
+	var mu sync.Mutex
 
-	log.Printf("Возвращаем канал из функции")
-	returnChannel()
+	// список функций с именами
+	examples := map[string]func(){
+		"simpleGoroutine": simpleGoroutine,
+		"withWaitGroup":   withWaitGroup,
+		"channelParam":    channelParam,
+		"returnChannel":   returnChannel,
+		"withRange":       withRange,
+		"withSelect":      withSelect,
+		"withErrGroup":    withErrGroup,
+		"mergeChannels":   mergeChannels,
+		"runTasks":        runTasks,
+	}
 
-	log.Printf("Работаем с горутиной и range")
-	withRange()
+	wg.Add(len(examples))
+	for name, ex := range examples {
+		go func(n string, f func()) {
+			defer wg.Done()
+			// фиксируем старт
+			start := time.Now()
+			f()
+			// фиксируем конец
+			end := time.Now()
 
-	log.Printf("Работаем с горутиной и select")
-	withSelect()
+			mu.Lock()
+			infoMap[n] = goroutineInfo{start: start, end: end}
+			mu.Unlock()
+		}(name, ex)
+	}
 
-	log.Printf("Работаем с горутиной и errorgroup")
-	withErrGroup()
+	wg.Wait()
 
-	log.Printf("Работаем с горутиной и errorgroup")
-	mergeChannels()
+	fmt.Println("\nВсе примеры завершены. Время старта и завершения goroutines:")
+	for name, info := range infoMap {
+		fmt.Printf("%s -> start: %s, end: %s, duration: %s\n",
+			name,
+			info.start.Format("15:04:05.000"),
+			info.end.Format("15:04:05.000"),
+			info.end.Sub(info.start),
+		)
+	}
 }
 
 // Простая горутина
@@ -208,4 +238,44 @@ func mergeChannels() {
 	for res := range fanIn(a, b) {
 		fmt.Println("Merged:", res)
 	}
+}
+
+func runTasks() {
+	var wg sync.WaitGroup
+	ch := make(chan int)
+
+	// Большая goroutine (телега)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		sum := 0
+		for i := 0; i < 1_000_000; i++ {
+			sum += i
+			if i%100_000 == 0 {
+				ch <- sum // отправляем часть результата
+			}
+		}
+		close(ch)
+	}()
+
+	// Обработчик канала (читаем чанки)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for val := range ch {
+			fmt.Println("Чанк результата:", val)
+		}
+	}()
+
+	// Маленькие goroutines (шоколадки)
+	for i := 1; i <= 5; i++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			fmt.Println("Шоколадка", id, "готова")
+		}(i)
+	}
+
+	// Ждём завершения всех goroutines
+	wg.Wait()
 }
