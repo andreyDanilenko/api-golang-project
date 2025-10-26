@@ -1,0 +1,133 @@
+{
+  "results": [
+    {
+      "name": "simpleGoroutine",
+      "duration_ms": 51149125,
+      "duration_readable": "51.0 ms",
+      "memory_used": "744 B",
+      "memory_bytes": 744,
+      "goroutines": 0,
+      "status": "success",
+      "issues": [
+        "✅ Нет проблем"
+      ],
+      "severity": "low",
+      "timestamp": "2025-10-26T17:23:53.072083+03:00"
+    },
+    {
+      "name": "withWaitGroup",
+      "duration_ms": 95750,
+      "duration_readable": "95.0 µs",
+      "memory_used": "768 B",
+      "memory_bytes": 768,
+      "goroutines": 0,
+      "status": "success",
+      "issues": [
+        "✅ Нет проблем"
+      ],
+      "severity": "low",
+      "timestamp": "2025-10-26T17:23:53.224544+03:00"
+    },
+    {
+      "name": "channelParam",
+      "duration_ms": 29167,
+      "duration_readable": "29.0 µs",
+      "memory_used": "144 B",
+      "memory_bytes": 144,
+      "goroutines": 0,
+      "status": "success",
+      "issues": [
+        "✅ Нет проблем"
+      ],
+      "severity": "low",
+      "timestamp": "2025-10-26T17:23:53.37596+03:00"
+    },
+    {
+      "name": "withRange",
+      "duration_ms": 81167,
+      "duration_readable": "81.0 µs",
+      "memory_used": "368 B",
+      "memory_bytes": 368,
+      "goroutines": 0,
+      "status": "success",
+      "issues": [
+        "✅ Нет проблем"
+      ],
+      "severity": "low",
+      "timestamp": "2025-10-26T17:23:53.527459+03:00"
+    },
+    {
+      "name": "withSelect",
+      "duration_ms": 101273584,
+      "duration_readable": "101.0 ms",
+      "memory_used": "728 B",
+      "memory_bytes": 728,
+      "goroutines": 0,
+      "status": "success",
+      "issues": [
+        "✅ Нет проблем"
+      ],
+      "severity": "low",
+      "timestamp": "2025-10-26T17:23:53.78033+03:00"
+    },
+    {
+      "name": "withErrGroup",
+      "duration_ms": 2861564500,
+      "duration_readable": "2.86 s",
+      "memory_used": "226.4 KB",
+      "memory_bytes": 231792,
+      "goroutines": 1,
+      "status": "error",
+      "issues": [
+        "МЕДЛЕННО: 2.8615645s"
+      ],
+      "severity": "high",
+      "timestamp": "2025-10-26T17:23:56.793585+03:00"
+    },
+    {
+      "name": "returnChannel",
+      "duration_ms": 1595373500,
+      "duration_readable": "1.60 s",
+      "memory_used": "27.0 KB",
+      "memory_bytes": 27648,
+      "goroutines": 0,
+      "status": "error",
+      "issues": [
+        "МЕДЛЕННО: 1.5953735s"
+      ],
+      "severity": "high",
+      "timestamp": "2025-10-26T17:23:58.541495+03:00"
+    },
+    {
+      "name": "mergeChannels",
+      "duration_ms": 1837806083,
+      "duration_readable": "1.84 s",
+      "memory_used": "47.0 KB",
+      "memory_bytes": 48176,
+      "goroutines": 0,
+      "status": "error",
+      "issues": [
+        "МЕДЛЕННО: 1.837806083s"
+      ],
+      "severity": "high",
+      "timestamp": "2025-10-26T17:24:00.530768+03:00"
+    },
+    {
+      "name": "runTasks",
+      "duration_ms": 1681458,
+      "duration_readable": "1.0 ms",
+      "memory_used": "3.4 KB",
+      "memory_bytes": 3504,
+      "goroutines": 0,
+      "status": "success",
+      "issues": [
+        "✅ Нет проблем"
+      ],
+      "severity": "low",
+      "timestamp": "2025-10-26T17:24:00.684771+03:00"
+    }
+  ],
+  "timestamp": "2025-10-26T17:24:00.684809+03:00",
+  "go_version": "go1.25.3",
+  "total_examples": 9
+}

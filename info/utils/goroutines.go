@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"fmt"
@@ -9,20 +9,17 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type goroutineInfo struct {
+type GoroutineInfo struct {
 	start time.Time
 	end   time.Time
 }
 
-func main() {
-	runAllExamples()
-}
-
-func runAllExamples() {
+// Все горутины в конкуренции
+func RunAllExamples() {
 	var wg sync.WaitGroup
 
 	// map для логирования старта и конца goroutines
-	infoMap := make(map[string]goroutineInfo)
+	infoMap := make(map[string]GoroutineInfo)
 	var mu sync.Mutex
 
 	// список функций с именами
@@ -39,6 +36,7 @@ func runAllExamples() {
 	}
 
 	wg.Add(len(examples))
+	// Работает не стабильно надо подумать как выводить анализ без пересечения горутин
 	for name, ex := range examples {
 		go func(n string, f func()) {
 			defer wg.Done()
@@ -49,7 +47,7 @@ func runAllExamples() {
 			end := time.Now()
 
 			mu.Lock()
-			infoMap[n] = goroutineInfo{start: start, end: end}
+			infoMap[n] = GoroutineInfo{start: start, end: end}
 			mu.Unlock()
 		}(name, ex)
 	}
@@ -92,9 +90,7 @@ func withWaitGroup() {
 	fmt.Println("Все withWaitGroup done")
 }
 
-// ==========================================
 // Канал как параметр функции
-// ==========================================
 func sendToChannel(ch chan<- string, msg string) {
 	ch <- msg
 }
@@ -112,9 +108,7 @@ func channelParam() {
 	receiveFromChannel(ch)
 }
 
-// ==========================================
 // Возврат канала из функции (fan-out pattern)
-// ==========================================
 func asyncFetch(url string) <-chan string {
 	ch := make(chan string)
 	go func() {
@@ -140,9 +134,7 @@ func returnChannel() {
 	fmt.Println("Got b:", <-b)
 }
 
-// ==========================================
 // Range + закрытие канала
-// ==========================================
 func withRange() {
 	ch := make(chan string)
 	go func() {
@@ -157,9 +149,7 @@ func withRange() {
 	}
 }
 
-// ==========================================
 // Select + timeout
-// ==========================================
 func withSelect() {
 	ch := make(chan string)
 	go func() {
@@ -175,9 +165,7 @@ func withSelect() {
 	}
 }
 
-// ==========================================
 // ErrGroup — параллельные HTTP-запросы
-// ==========================================
 func withErrGroup() {
 	var g errgroup.Group
 	var useResp, taskResp *http.Response
@@ -199,19 +187,26 @@ func withErrGroup() {
 		return
 	}
 
+	if useResp != nil {
+		useResp.Body.Close()
+	}
+	if taskResp != nil {
+		taskResp.Body.Close()
+	}
+
 	fmt.Println("User:", useResp.Status)
 	fmt.Println("Task:", taskResp.Status)
 
 }
 
-// ==========================================
 // Передача одного канала в другую горутину
-// ==========================================
 // Что то из базового понимания пайплайнов, но это более сложная тема
 func fanIn(ch1, ch2 <-chan string) <-chan string {
 	out := make(chan string)
+
 	go func() {
 		defer close(out)
+
 		for ch1 != nil || ch2 != nil {
 			select {
 			case v, ok := <-ch1:
@@ -235,7 +230,10 @@ func fanIn(ch1, ch2 <-chan string) <-chan string {
 func mergeChannels() {
 	a := asyncFetch("https://httpbin.org/get")
 	b := asyncFetch("https://httpbin.org/uuid")
-	for res := range fanIn(a, b) {
+
+	// Читаем ВСЕ результаты до завершения
+	merged := fanIn(a, b)
+	for res := range merged {
 		fmt.Println("Merged:", res)
 	}
 }
@@ -252,7 +250,7 @@ func runTasks() {
 		for i := 0; i < 1_000_000; i++ {
 			sum += i
 			if i%100_000 == 0 {
-				ch <- sum // отправляем часть результата
+				ch <- sum
 			}
 		}
 		close(ch)
